@@ -20,6 +20,21 @@ public class Employee {
             new Employee("David", "Engineering", 90000, 6, 32, "Junior Engineer"),
             new Employee("Eve", "Marketing", 72000, 6, 38, "Marketing Manager"));
 
+    public Employee(String name, String department) {
+        this.name = name;
+        this.department = department;
+        this.salary = 0;
+        this.experience = 0;
+    }
+
+    // Default constructor
+    public Employee() {
+        this.name = name;
+        this.department = department;
+        this.salary = 0;
+        this.experience = 0;
+    }
+
     public Employee(String name, String department, double salary, int experience, int age, String jobTitle) {
         this.name = name;
         this.department = department;
