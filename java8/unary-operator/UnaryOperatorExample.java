@@ -50,8 +50,6 @@ public class UnaryOperatorExample {
             return emp;
         };
 
-        
-
         // Combined UnaryOperator: apply department bonus first, then experience bonus,
         // then high salary bonus
         Function<Employee, Employee> applyAllBonuses = applyItDepartmentBonus
@@ -60,8 +58,7 @@ public class UnaryOperatorExample {
 
         // Apply both bonuses sequentially using stream and collect the adjusted list
         List<Employee> adjustedEmployees = Employee.employees.stream()
-                .map(applyExperienceBonus)
-                .map(applyItDepartmentBonus)
+                .map(applyAllBonuses)
                 .collect(Collectors.toList());
 
         // Display adjusted salaries for all employees

@@ -2,14 +2,16 @@ package utils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
-public class Employee {
+public class Employee implements RandomPopulatable {
     private String name;
     private String department;
     private double salary;
     private int experience;
     private int age;
     private String jobTitle;
+    private static final Random random = new Random();
 
     public static List<Employee> employees = Arrays.asList(
             new Employee("John", "IT", 50000, 5, 28, "Developer"),
@@ -29,8 +31,6 @@ public class Employee {
 
     // Default constructor
     public Employee() {
-        this.name = name;
-        this.department = department;
         this.salary = 0;
         this.experience = 0;
     }
@@ -97,5 +97,13 @@ public class Employee {
     public String toString() {
         return String.format("Employee [name=%s, department=%s, salary=%.2f, experience=%d, age=%d, jobTitle=%s]",
                 name, department, salary, experience, age, jobTitle);
+    }
+
+    @Override
+    public void populateRandomValues() {
+        this.name = "Employee" + random.nextInt(1000);
+        this.department = "Dept" + (1 + random.nextInt(5));
+        this.salary = 30000 + random.nextDouble() * 70000;
+        this.experience = random.nextInt(15);
     }
 }
