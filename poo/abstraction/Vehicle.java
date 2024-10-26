@@ -1,7 +1,7 @@
 package poo.abstraction;
 
 // Define abstract base class 'Vehicle' to encapsulate common properties and behaviors for all vehicles
-abstract class Vehicle {
+abstract class Vehicle implements Movable, Serviceable {
     private String brand;
 
     public Vehicle(String brand) {
@@ -18,5 +18,10 @@ abstract class Vehicle {
     // Concrete method that can be used by all subclasses
     public void displayBrand() {
         System.out.println("Brand: " + brand);
+    }
+
+    @Override
+    public void service() {
+        System.out.println(brand + " vehicle is being serviced.");
     }
 }
