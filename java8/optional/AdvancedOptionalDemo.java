@@ -19,7 +19,7 @@ public class AdvancedOptionalDemo {
         optionalValue.ifPresent(value -> System.out.println("Valeur présente : " + value));
 
         // 2️⃣ Valeur par défaut avec orElse et orElseGet
-        String result1 = optionalValue.orElse("Valeur par défaut");
+        String result1 = optionalValue.orElse("Valeur défaut");
         String result2 = emptyOptional.orElseGet(() -> "Valeur calculée");
 
         System.out.println("Résultat 1 : " + result1);
