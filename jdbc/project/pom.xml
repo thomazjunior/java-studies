@@ -35,6 +35,14 @@
             <artifactId>lombok</artifactId>
             <version>1.18.42</version>
         </dependency>
+
+        <!-- -->
+        <dependency>
+            <groupId>com.sun.rowset</groupId>
+            <artifactId>com.sun.rowset</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
     </dependencies>
 
 </project>
