@@ -1,4 +1,4 @@
-package org.example.creation.monteur;
+package org.example.creation.monteur.maison;
 
 // MaisonBoisVerreMonteur.java
 public class MaisonBoisVerreMonteur implements Monteur {
