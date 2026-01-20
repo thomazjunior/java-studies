@@ -51,14 +51,38 @@ public class ReflectionFactoryExample {
             Class<?>[] paramTypes,
             Object[] args
     ) {
-        try {
+
             Class<?> clazz = target.getClass();
-            Method method = clazz.getDeclaredMethod(methodName, paramTypes);
+            Method method;
+
+
+            try {
+                method = clazz.getDeclaredMethod(methodName, paramTypes);
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException(
+                        "La méthode '" + methodName + "' avec les paramètres " +
+                                java.util.Arrays.toString(paramTypes) +
+                                " n'existe pas dans la classe " + clazz.getName(), e
+                );
+            }
+
+
+        try {
             method.setAccessible(true);
             return method.invoke(target, args);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(
+                    "Impossible d'accéder à la méthode '" + methodName +
+                            "' de la classe " + clazz.getName(), e
+            );
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            throw new RuntimeException(
+                    "La méthode '" + methodName +
+                            "' a levé une exception : " + cause, cause
+            );
         }
+
     }
 
     public static void main(String[] args) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
@@ -71,8 +95,8 @@ public class ReflectionFactoryExample {
         Object result1 = invoke(
                 calc,
                 "add",
-                new Class<?>[]{ int.class },
-                new Object[]{ 5 }
+                new Class<?>[]{int.class},
+                new Object[]{5}
         );
     }
 
