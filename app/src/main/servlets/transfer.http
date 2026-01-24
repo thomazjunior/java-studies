@@ -1,0 +1,15 @@
+< {%
+    // Create an array [1, 2, 3, ..., 100]
+    let transfers = Array.from({length: 100}, (_, i) => i + 1);
+    request.variables.set("transferId", transfers);
+%}
+PUT http://localhost:8080/app/transfer
+Content-Type: application/json
+
+{
+  "fromAccount": "FR7612345678",
+  "toAccount": "FR7698765432",
+  "amount": 500,
+  "currency": "EUR",
+  "transferId": {{transferId}}
+}
