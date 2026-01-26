@@ -34,14 +34,31 @@ import java.io.IOException;
 
 @WebServlet("/transfer")
 public class TransferServlet extends HttpServlet {
-
+    /**
+     * docker logs ibmmq
+     * docker exec -it ibmmq dspmq
+     * """
+     * ╰─ docker run -d \
+     *   --platform=linux/amd64 \
+     *   --name ibmmq \
+     *   -e LICENSE=accept \
+     *   -e MQ_QMGR_NAME=QM_BANK \
+     *   -e MQ_APP_PASSWORD=passw0rd \
+     *   -e MQ_ADMIN_PASSWORD=passw0rd \
+     *   -p 1414:1414 \
+     *   -p 9443:9443 \
+     *   icr.io/ibm-messaging/mq:latest
+     * """
+     * @return
+     * @throws Exception
+     */
     private MQConnectionFactory createConnectionFactory() throws Exception {
         MQConnectionFactory cf = new MQConnectionFactory();
 
         cf.setHostName("localhost");               // MQ host
         cf.setPort(1414);                          // MQ listener port
-        cf.setStringProperty(WMQConstants.USERID, "");
-        cf.setStringProperty(WMQConstants.PASSWORD, "");
+        cf.setStringProperty(WMQConstants.USERID, "app");
+        cf.setStringProperty(WMQConstants.PASSWORD, "passw0rd");
         cf.setQueueManager("QM_BANK");             // Queue Manager
         cf.setChannel("DEV.APP.SVRCONN");          // Server-conn channel
         cf.setTransportType(WMQConstants.WMQ_CM_CLIENT);
