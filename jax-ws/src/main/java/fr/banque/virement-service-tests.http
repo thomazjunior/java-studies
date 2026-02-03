@@ -1,0 +1,187 @@
+### 1. RÉCUPÉRER LE WSDL
+GET http://localhost:8080/service-virements/VirementBancaireService?wsdl
+Accept: text/xml
+Content-Type: text/xml
+
+> {%
+    client.test("WSDL accessible", function() {
+        client.assert(response.status === 200, "WSDL non accessible");
+        client.assert(response.contentType.mimeType === "text/xml", "Mauvais type de contenu");
+    });
+%}
+
+### 2. TEST VIREMENT VALIDE
+POST http://localhost:8080/service-virements/VirementBancaireService
+Content-Type: text/xml;charset=UTF-8
+SOAPAction: ""
+Accept: text/xml
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:ser="http://banque.fr/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ser:effectuerVirement>
+            <virementRequest>
+                <compteSource>FR7630001007941234567890185</compteSource>
+                <compteDestination>FR7630006000011234567890189</compteDestination>
+                <montant>1500.50</montant>
+                <description>Virement mensuel loyer</description>
+            </virementRequest>
+        </ser:effectuerVirement>
+    </soapenv:Body>
+</soapenv:Envelope>
+
+> {%
+    client.test("Virement valide - Statut 200", function() {
+        client.assert(response.status === 200, "Statut HTTP attendu: 200");
+    });
+
+    client.test("Virement valide - Réponse XML", function() {
+        client.assert(response.contentType.mimeType === "text/xml", "Réponse XML attendue");
+    });
+
+    client.test("Virement valide - Contient référence", function() {
+        client.assert(response.body.includes("VIR-"), "Doit contenir une référence de virement");
+        client.assert(response.body.includes("SUCCES"), "Doit indiquer SUCCES");
+    });
+%}
+
+### 3. TEST VIREMENT AVEC MONTANT NÉGATIF (ERREUR)
+POST http://localhost:8080/service-virements/VirementBancaireService
+Content-Type: text/xml;charset=UTF-8
+SOAPAction: ""
+Accept: text/xml
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:ser="http://banque.fr/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ser:effectuerVirement>
+            <virementRequest>
+                <compteSource>FR7630001007941234567890185</compteSource>
+                <compteDestination>FR7630006000011234567890189</compteDestination>
+                <montant>-100.00</montant>
+                <description>Virement montant négatif</description>
+            </virementRequest>
+        </ser:effectuerVirement>
+    </soapenv:Body>
+</soapenv:Envelope>
+
+> {%
+    client.test("Montant négatif - Doit échouer", function() {
+        // Note: Les erreurs SOAP retournent souvent 200 avec un fault dans le body
+        client.assert(response.body.includes("ERR004") || response.body.includes("Montant invalide"),
+            "Doit contenir erreur montant invalide");
+    });
+%}
+
+### 4. TEST VIREMENT COMPTE SOURCE MANQUANT
+POST http://localhost:8080/virements/VirementBancaireService
+Content-Type: text/xml;charset=UTF-8
+SOAPAction: ""
+Accept: text/xml
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:ser="http://banque.fr/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ser:effectuerVirement>
+            <virementRequest>
+                <compteDestination>FR7630006000011234567890189</compteDestination>
+                <montant>100.00</montant>
+                <description>Compte source manquant</description>
+            </virementRequest>
+        </ser:effectuerVirement>
+    </soapenv:Body>
+</soapenv:Envelope>
+
+> {%
+    client.test("Compte source manquant", function() {
+        client.assert(response.body.includes("ERR002") || response.body.includes("Compte source requis"),
+            "Doit signaler compte source manquant");
+    });
+%}
+
+### 5. TEST VIREMENT COMPTES IDENTIQUES
+POST http://localhost:8080/service-virements/VirementBancaireService
+Content-Type: text/xml;charset=UTF-8
+SOAPAction: ""
+Accept: text/xml
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:ser="http://banque.fr/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ser:effectuerVirement>
+            <virementRequest>
+                <compteSource>FR7630001007941234567890185</compteSource>
+                <compteDestination>FR7630001007941234567890185</compteDestination>
+                <montant>100.00</montant>
+                <description>Même compte</description>
+            </virementRequest>
+        </ser:effectuerVirement>
+    </soapenv:Body>
+</soapenv:Envelope>
+
+> {%
+    client.test("Comptes identiques", function() {
+        client.assert(response.body.includes("ERR005"),
+            "Doit refuser comptes identiques");
+    });
+%}
+
+### 6. TEST VIREMENT GRAND MONTANT
+POST http://localhost:8080/virements/VirementBancaireService
+Content-Type: text/xml;charset=UTF-8
+SOAPAction: ""
+Accept: text/xml
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:ser="http://banque.fr/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ser:effectuerVirement>
+            <virementRequest>
+                <compteSource>FR7630001007941234567890185</compteSource>
+                <compteDestination>FR7630006000011234567890189</compteDestination>
+                <montant>1000000.00</montant>
+                <description>Virement important</description>
+            </virementRequest>
+        </ser:effectuerVirement>
+    </soapenv:Body>
+</soapenv:Envelope>
+
+> {%
+    client.test("Grand montant - succès", function() {
+        client.assert(response.status === 200, "Statut OK");
+        client.assert(response.body.includes("VIR-"), "Doit générer une référence");
+    });
+%}
+
+### 7. TEST VIREMENT AVEC ZÉRO
+POST http://localhost:8080/virements/VirementBancaireService
+Content-Type: text/xml;charset=UTF-8
+SOAPAction: ""
+Accept: text/xml
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:ser="http://banque.fr/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ser:effectuerVirement>
+            <virementRequest>
+                <compteSource>FR7630001007941234567890185</compteSource>
+                <compteDestination>FR7630006000011234567890189</compteDestination>
+                <montant>0.00</montant>
+                <description>Montant zéro</description>
+            </virementRequest>
+        </ser:effectuerVirement>
+    </soapenv:Body>
+</soapenv:Envelope>
+
+> {%
+    client.test("Montant zéro", function() {
+        client.assert(response.body.includes("ERR004") || response.body.includes("Montant invalide"),
+            "Montant zéro doit être refusé");
+    });
+%}

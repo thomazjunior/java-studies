@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-web version="14.0"
+           xmlns="https://www.jboss.org/xml/ns/javaee"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="https://www.jboss.org/xml/ns/javaee
+           https://www.jboss.org/schema/jbossas/jboss-web_14_0.xsd">
+
+    <context-root>/service-virements</context-root>
+
+    <!-- Security domain si besoin -->
+    <!-- <security-domain>my-security-domain</security-domain> -->
+
+    <!-- Resources JNDI -->
+    <!-- <resource-ref>
+        <res-ref-name>jdbc/BanqueDS</res-ref-name>
+        <lookup-name>java:jboss/datasources/BanqueDS</lookup-name>
+    </resource-ref> -->
+
+</jboss-web>
